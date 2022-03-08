@@ -23,13 +23,12 @@ Programme principal
 import socket
 
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
-
 isServer = input("Serveur (1) ou client(0) ?")
 
 
 
 if isServer == "1":
-    HOST = gethostbyname( '0.0.0.0' )  # Standard loopback interface address (localhost)
+    HOST = gethostbyname('0.0.0.0')
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
@@ -45,7 +44,7 @@ else:
     HOST = input("Entrez l'adresse IP du serveur : ")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        s.sendall(b"Hello, world")
+        s.sendall(input())
         data = s.recv(1024)
 
     print(f"Received {data!r}")
