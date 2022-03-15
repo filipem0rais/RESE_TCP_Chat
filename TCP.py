@@ -24,7 +24,7 @@ import socket
 port = 10000
 buffer = 1024
 charFormat = "UTF-8"
-isServer = input("Serveur (1) ou client(0) ?")
+isServer = input("Serveur (1) ou client(0) : ")
 
 if isServer == "1":
     host = gethostbyname('0.0.0.0')
@@ -34,7 +34,8 @@ if isServer == "1":
     s.bind((host, port))
     s.listen(5)
     conn, addr = s.accept()
-    print("Adresse et port utilisé pour la connection : "+addr)
+    print("Adresse utilisée pour la connection : "+addr[0])
+    print("Port utilisé pour la connection : " + addr[1])
     conn.sendall(b"Bienvue sur le chat !")
     while True:
         data = conn.recv(buffer)
