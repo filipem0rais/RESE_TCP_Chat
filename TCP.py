@@ -29,22 +29,32 @@ isServer = input("Serveur (1) ou client(0) ?")
 
 if isServer == "1":
     HOST = gethostbyname('0.0.0.0')
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
-        s.listen()
-        conn, addr = s.accept()
-        with conn:
-            print(f"Connected by {addr}")
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    break
-                conn.sendall(data)
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((HOST,PORT))
+    print("Waiting to receive messages...")
+    while True:
+        (data, address) = s.recvfrom(1024)
+        print("Received message: " + data.decode())
+        if data == b"exit":
+            break
+    s.close()
+
 else:
     HOST = input("Entrez l'adresse IP du serveur : ")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        s.sendall(input())
+        s.sendall(b"Hello, world")
         data = s.recv(1024)
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        while True:
+            data = input("Enter message to send or type 'exit': ")
+            s.sendto(data.encode(), HOST)
+            if data == "exit":
+                break
+
+        s.close()
 
     print(f"Received {data!r}")
