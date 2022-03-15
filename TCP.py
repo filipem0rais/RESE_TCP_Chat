@@ -21,51 +21,46 @@ Programme principal
 '''
 import socket
 
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+port = 10000
+buffer = 1024
+charFormat = "UTF-8"
 isServer = input("Serveur (1) ou client(0) ?")
 
 if isServer == "1":
-    # HOST = gethostbyname('0.0.0.0')
     host = gethostbyname('0.0.0.0')
-    # port = 10000
-    # buf = 1024
+
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((host, 9999))
+    s.bind((host, port))
     s.listen(5)
     conn, addr = s.accept()
-
+    print("Adresse et port utilisé pour la connection : "+addr)
     conn.sendall(b"Bienvue sur le chat !")
     while True:
-        data = conn.recv(1024)
-        print(data.decode("ascii"))
+        data = conn.recv(buffer)
+        print(data.decode(charFormat))
         if not data:
             break
         msg = input("Message : ")
-        bMsg = msg.encode("ascii")
+        bMsg = msg.encode(charFormat)
         conn.sendall(bMsg)
     conn.close()
 
 else:
-    # HOST = input("Entrez l'adresse IP du serveur : ")
-
-    # host = input("Entrez l'adresse IP du serveur : ")  # set to IP address of target computer
-    # port = 10000
-    # addr = (host, port)
+    port = 10000
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = input("Entrez l'adresse IP du serveur : ")  # set to IP address of target computer
-    s.connect((host, 9999))
-    data = s.recv(1034)
-    print(data.decode("ascii"))
+    s.connect((host, port))
+    data = s.recv(buffer)
+    print(data.decode(charFormat))
 
     while True:
         msg = input("Message : ")
         if msg == 'quit':
             break
-        bMsg = msg.encode("ascii")
+        bMsg = msg.encode(charFormat)
         s.sendall(bMsg)
         data = s.recv(1024)
-        print(data.decode("ascii"))
-
+        print(data.decode(charFormat))
     s.close()
