@@ -19,8 +19,7 @@ from _socket import gethostbyname
 Programme principal
 -------------------
 '''
-
-import socket
+from socket import *
 
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 isServer = input("Serveur (1) ou client(0) ?")
@@ -28,33 +27,40 @@ isServer = input("Serveur (1) ou client(0) ?")
 
 
 if isServer == "1":
-    HOST = gethostbyname('0.0.0.0')
+    # HOST = gethostbyname('0.0.0.0')
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((HOST,PORT))
+
+    host = gethostbyname('0.0.0.0')
+    port = 10000
+    buf = 1024
+
+    address = (host, port)
+    UDPSock = socket(AF_INET, SOCK_DGRAM)
+    UDPSock.bind(address)
+
     print("Waiting to receive messages...")
+
     while True:
-        (data, address) = s.recvfrom(1024)
+        (data, address) = UDPSock.recvfrom(buf)
         print("Received message: " + data.decode())
         if data == b"exit":
             break
-    s.close()
+
+    UDPSock.close()
 
 else:
-    HOST = input("Entrez l'adresse IP du serveur : ")
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        s.sendall(b"Hello, world")
-        data = s.recv(1024)
+    # HOST = input("Entrez l'adresse IP du serveur : ")
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host = input("Entrez l'adresse IP du serveur : ")  # set to IP address of target computer
+    port = 10000
+    addr = (host, port)
 
-        while True:
-            data = input("Enter message to send or type 'exit': ")
-            s.sendto(data.encode(), HOST)
-            if data == "exit":
-                break
+    UDPSock = socket(AF_INET, SOCK_DGRAM)
 
-        s.close()
+    while True:
+        data = input("Enter message to send or type 'exit': ")
+        UDPSock.sendto(data.encode(), addr)
+        if data == "exit":
+            break
 
-    print(f"Received {data!r}")
+    UDPSock.close()
