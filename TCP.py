@@ -14,119 +14,58 @@ Algorithme :
 
 '''
 from _socket import gethostbyname
-import socket
-import threading
 
-clients = []
-nicknames = []
-# Sending Messages To All Connected Clients
-def broadcast(message):
-    for client in clients:
-        client.send(message)
-
-def handle(client):
-    while True:
-        try:
-            # Broadcasting Messages
-            message = client.recv(1024)
-            broadcast(message)
-        except:
-            # Removing And Closing Clients
-            index = clients.index(client)
-            clients.remove(client)
-            client.close()
-            nickname = nicknames[index]
-            broadcast('{} left!'.format(nickname).encode('ascii'))
-            nicknames.remove(nickname)
-            break
-def receive():
-    while True:
-        # Accept Connection
-        client, address = server.accept()
-        print("Connected with {}".format(str(address)))
-
-        # Request And Store Nickname
-        client.send('NICK'.encode('ascii'))
-        nickname = client.recv(1024).decode('ascii')
-        nicknames.append(nickname)
-        clients.append(client)
-
-        # Print And Broadcast Nickname
-        print("Nickname is {}".format(nickname))
-        broadcast("{} joined!".format(nickname).encode('ascii'))
-        client.send('Connected to server!'.encode('ascii'))
-
-        # Start Handling Thread For Client
-        thread = threading.Thread(target=handle, args=(client,))
-        thread.start()
-
-def receiveClient():
-    while True:
-        try:
-            # Receive Message From Server
-            # If 'NICK' Send Nickname
-            message = client.recv(1024).decode('ascii')
-            if message == 'NICK':
-                client.send(nickname.encode('ascii'))
-            else:
-                print(message)
-        except:
-            # Close Connection When Error
-            print("An error occured!")
-            client.close()
-            break
-def write():
-    while True:
-        message = '{}: {}'.format(nickname, input(''))
-        client.send(message.encode('ascii'))
 '''
 Programme principal
 -------------------
 '''
-
+import socket
 
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 isServer = input("Serveur (1) ou client(0) ?")
 
 if isServer == "1":
     # HOST = gethostbyname('0.0.0.0')
-
-    '''
     host = gethostbyname('0.0.0.0')
-    port = 10000
-    buf = 1024
+    # port = 10000
+    # buf = 1024
 
-    address = (host, port)
-    UDPSock = socket(AF_INET, SOCK_DGRAM)
-    UDPSock.bind(address)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((host, 9999))
+    s.listen(5)
+    conn, addr = s.accept()
 
-    print("Waiting to receive messages...")
-
+    conn.sendall(b"Bienvue sur le chat !")
     while True:
-        (data, address) = UDPSock.recvfrom(buf)
-        print("Received message: " + data.decode())
-        if data == b"exit":
+        data = conn.recv(1024)
+        print(data.decode("ascii"))
+        if not data:
             break
-
-    UDPSock.close()
-    '''
-    host = "127.0.0.1"
-    port = 55555
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((host, port))
-    server.listen()
-
-
+        msg = input("Message : ")
+        bMsg = msg.encode("ascii")
+        conn.sendall(bMsg)
+    conn.close()
 
 else:
-    # Choosing Nickname
-    nickname = input("Choose your nickname: ")
+    # HOST = input("Entrez l'adresse IP du serveur : ")
 
-    # Connecting To Server
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(('127.0.0.1', 55555))
-    receive_thread = threading.Thread(target=receive)
-    receive_thread.start()
+    # host = input("Entrez l'adresse IP du serveur : ")  # set to IP address of target computer
+    # port = 10000
+    # addr = (host, port)
 
-    write_thread = threading.Thread(target=write)
-    write_thread.start()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host = input("Entrez l'adresse IP du serveur : ")  # set to IP address of target computer
+    s.connect((host, 9999))
+    data = s.recv(1034)
+    print(data.decode("ascii"))
+
+    while True:
+        msg = input("Message : ")
+        if msg == 'quit':
+            break
+        bMsg = msg.encode("ascii")
+        s.sendall(bMsg)
+        data = s.recv(1024)
+        print(data.decode("ascii"))
+
+    s.close()
